@@ -13,10 +13,11 @@ class Login {
         token: obj['data']['token'],
         userID: int.parse(obj['data']['user']['id']),
         userEmail: obj['data']['user']['email']);
-    } else {
-      return Login(
-        code: obj['code'],
-        status: obj['status'],
+      } 
+      else {
+        return Login(
+          code: obj['code'],
+          status: obj['status'],
       );
     }
   }

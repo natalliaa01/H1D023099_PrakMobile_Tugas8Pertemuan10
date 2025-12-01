@@ -1,17 +1,19 @@
-# TokoKita (Tugas 8 Pertemuan 10)
-
-Aplikasi Flutter untuk latihan CRUD UI pada produk, sesuai tugas Pertemuan 10.  
-UI telah diselesaikan hingga tuntas dan setiap halaman sudah ditambahkan nama panggilan Natalia pada AppBar seperti instruksi.
+# **📄 README.md — TokoKita (Flutter + CodeIgniter 4)**
+Tugas Praktikum Pengenalan Framework — Pertemuan 10 & 11  
+Aplikasi Flutter dengan fitur **Login, Registrasi, dan CRUD Produk** terintegrasi dengan API **CodeIgniter 4**.
 
 ---
 
-## Data Diri
--   **Nama:** `Natalia Nidya Fidelia`
--   **NIM:** `H1D023099`
--   **Shift Baru:** `E`
--   **Shift Asal:** `B`
+## 👤 **Data Diri**
+| Keterangan | Isi |
+|----------|-----|
+| **Nama** | Natalia Nidya Fidelia |
+| **NIM** | H1D023099 |
+| **Shift Baru** | E |
+| **Shift Asal** | B |
 
-## Screenshot Aplikasi
+---
+
 
 ### Login Page
 <img width="162" height="360" alt="Image" src="https://github.com/user-attachments/assets/ead1095e-5993-404f-a362-0352cf802561" />
@@ -33,10 +35,9 @@ UI telah diselesaikan hingga tuntas dan setiap halaman sudah ditambahkan nama pa
 
 ### Logout Page
 <img width="162" height="360" alt="Image" src="https://github.com/user-attachments/assets/6dd3d22b-ce2b-4165-b485-a54dcb5a0844" />
-
 ---
 
-## Alur Navigasi Aplikasi
+# 🔀 **Alur Navigasi Aplikasi**
 
 ```
 Login Page
@@ -47,144 +48,129 @@ List Produk Natalia
    ↓
 Tambah Produk Natalia / Detail Produk Natalia
    ↓
-Edit / Delete
+Edit / Delete Produk
    ↓
-Logout → kembali ke Login Page
+Logout → Kembali ke Login Page
 ```
 
 ---
 
-## Struktur Project
+# 📁 **Struktur Project Flutter**
 
 ```
 lib/
  ├─ main.dart
  ├─ model/
+ │   ├─ login.dart
+ │   ├─ registrasi.dart
  │   └─ produk.dart
- ├─ ui/
- │   ├─ login_page.dart
- │   ├─ registrasi_page.dart
- │   ├─ produk_page.dart
- │   ├─ produk_form.dart
- │   └─ produk_detail.dart
- └─ bloc/
-     └─ produk_bloc.dart
+ ├─ bloc/
+ │   ├─ login_bloc.dart
+ │   ├─ registrasi_bloc.dart
+ │   └─ produk_bloc.dart
+ ├─ helpers/
+ │   ├─ api.dart
+ │   ├─ api_url.dart
+ │   └─ user_info.dart
+ └─ ui/
+     ├─ login_page.dart
+     ├─ registrasi_page.dart
+     ├─ produk_page.dart
+     ├─ produk_form.dart
+     └─ produk_detail.dart
 ```
 
 ---
 
-## Penjelasan Kode Per Halaman
+# 🔑 **LOGIN — Proses & Penjelasan**
 
-### `main.dart`
-- Entry point aplikasi
-- Menjalankan `MaterialApp`
-- Home diarahkan ke `ProdukPage()`
+1. User memasukkan email & password  
+2. Flutter mengirim request:
+   ```
+   POST /login
+   Content-Type: application/x-www-form-urlencoded
+   ```
+3. Jika sukses → menerima token  
+4. Token disimpan di `SharedPreferences`
 
-```dart
-return const MaterialApp(
-  title: 'Toko Kita Natalia',
-  debugShowCheckedModeBanner: false,
-  home: ProdukPage(),
-);
+---
+
+# 📝 **REGISTRASI — Proses & Penjelasan**
+
+Flow:
+- Input **nama, email, password**
+- Flutter → API via:
+  ```
+  POST /registrasi
+  ```
+- Password di-hash  
+- Simpan DB  
+- Response:
+  ```json
+  {"code":200,"status":true,"data":"Registrasi Berhasil"}
+  ```
+
+---
+
+# 📦 **CRUD PRODUK — Penjelasan Lengkap**
+
+### ➕ Tambah Produk
+```
+POST /produk
+Authorization: Bearer <token>
+```
+
+### 📄 List Produk
+```
+GET /produk
+```
+
+### ✏️ Update Produk
+```
+PUT /produk/{id}
+```
+
+### 🗑️ Delete Produk
+```
+DELETE /produk/{id}
 ```
 
 ---
 
-### `login_page.dart`
+# 🛠️ **ROUTES Backend CI4**
+```php
+$routes->post('registrasi', 'RegistrasiController::registrasi');
+$routes->post('login', 'LoginController::login');
 
-**Fungsi utama:**
-- Form login (email & password)
-- Validasi input wajib
-- Tombol login menuju List Produk
-
-```dart
-Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(builder: (context) => const ProdukPage()),
-);
+$routes->group('produk', function ($routes) {
+    $routes->get('/', 'ProdukController::list');
+    $routes->post('/', 'ProdukController::create');
+    $routes->get('(:segment)', 'ProdukController::detail/$1');
+    $routes->put('(:segment)', 'ProdukController::ubah/$1');
+    $routes->delete('(:segment)', 'ProdukController::hapus/$1');
+});
 ```
 
 ---
 
-### `registrasi_page.dart`
+# **Cara Menjalankan**
 
-**Fitur & validasi:**
-- Nama minimal 3 karakter
-- Email format valid
-- Password min 6 karakter
-- Konfirmasi password wajib sama
-
-AppBar:
-```dart
-title: const Text("Registrasi Natalia"),
+## Backend (CI4)
+```bash
+php spark serve --host 0.0.0.0 --port 8080
 ```
 
----
-
-### `produk_page.dart` (List Produk Natalia)
-
-**Isi halaman:**
-- Menampilkan list produk statis (dummy)
-- Tombol + membuka form tambah produk
-- Drawer berisi Logout
-
-AppBar:
-```dart
-title: const Text('List Produk Natalia'),
-```
-
-Logout:
-```dart
-Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(builder: (context) => const LoginPage()),
-  (route) => false,
-);
-```
-
----
-
-### `produk_form.dart` (Tambah / Edit)
-
-**Fungsi:**
-- Form input kode, nama, harga
-- Bisa Tambah atau Edit tergantung `widget.produk`
-
-Logika judul:
-```dart
-if (widget.produk != null) {
-  judul = "UBAH PRODUK Natalia";
-} else {
-  judul = "TAMBAH PRODUK Natalia";
-}
-```
-
----
-
-### `produk_detail.dart`
-
-**Menampilkan:**
-- kode produk
-- nama produk
-- harga
-
-Tombol tindakan:
-- EDIT → buka ProdukForm dengan data lama
-- DELETE → dialog konfirmasi
-
-```dart
-OutlinedButton(
-  child: const Text("DELETE"),
-  onPressed: () => confirmHapus(),
-)
-```
-
----
-
-## Cara Menjalankan Aplikasi
-
+## Flutter
 ```bash
 flutter pub get
 flutter run
 ```
+
 ---
+
+# 🎯 **Pertemuan 11 — Integrasi API**
+
+### Screenshot:
+![img1](https://github.com/user-attachments/assets/7edeb5e2-bf79-4c7d-9d16-1a5fa9f94b4c)
+![img2](https://github.com/user-attachments/assets/2aea6498-7b79-4365-9d68-3f09fe99e5f0)
+![img3](https://github.com/user-attachments/assets/b203945f-49cf-4c71-9ba3-be1672f38118)
